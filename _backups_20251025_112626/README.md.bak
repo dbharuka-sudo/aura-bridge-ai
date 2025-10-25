@@ -1,0 +1,35 @@
+# Aura Bridge AI (Frontend + Server)
+
+## Run locally
+
+1. Start API server
+
+```bash
+cd "server"
+npm install
+npm run dev
+```
+
+2. Start frontend (Vite)
+
+```bash
+cd "../aura-bridge-ai"
+cp .env.example .env # optional
+npm install
+npm run dev
+```
+
+Open http://localhost:5173
+
+The frontend proxies /api to http://localhost:8080.
+
+## What you can see
+- 3D Three.js path viewer (mock path loaded from server)
+- Validation status (mock: "Path is Valid")
+- Robot code tabs (KAREL / KRL) from server
+- Embedded NICE DCV iframe (configure with VITE_DCV_URL)
+
+## Next steps
+- Point server to real AWS S3 + Bedrock, IoT Core ingest
+- Replace NICE DCV URL with your streaming endpoint
+- Secure endpoints, add auth if needed

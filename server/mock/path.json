@@ -1,0 +1,9 @@
+{
+  "points": [
+    { "x": 0, "y": 0, "z": 0, "grasp": false },
+    { "x": 0.2, "y": 0.1, "z": 0.1, "grasp": false },
+    { "x": 0.4, "y": 0.2, "z": 0.1, "grasp": true },
+    { "x": 0.6, "y": 0.2, "z": 0.0, "grasp": true },
+    { "x": 0.8, "y": 0.1, "z": -0.1, "grasp": false }
+  ]
+}

@@ -1,0 +1,106 @@
+service: aura-bridge-ai-cloud
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: prod
+  httpApi:
+    cors:
+      allowedOrigins:
+        - "*"
+      allowedMethods:
+        - GET
+        - OPTIONS
+      allowedHeaders:
+        - "*"
+      maxAge: 600
+  environment:
+    BUCKET_NAME: ${self:service}-${sls:stage}-artifacts
+    TABLE_NAME: ${self:service}-${sls:stage}-jobs
+    IOT_TOPIC: auraBridge/gestures/path
+    THING_NAME: Aura-Bridge-IOT
+    BEDROCK_ENABLED: 'true'
+    BEDROCK_MODEL: anthropic.claude-3-haiku-20240307-v1:0
+
+plugins:
+  - serverless-iam-roles-per-function
+
+functions:
+  ingest:
+    handler: functions/ingest.handler
+    timeout: 60
+    memorySize: 1024
+    description: Ingest from IoT, validate, call Bedrock, store to S3+DDB
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:GetItem
+        Resource:
+          - arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.TABLE_NAME}
+      - Effect: Allow
+        Action:
+          - bedrock:InvokeModel
+        Resource: '*'
+    events:
+      - iot:
+          sql: "SELECT clientid() as clientId, topic() as topic, * FROM '${self:provider.environment.IOT_TOPIC}'"
+  api:
+    handler: functions/api.handler
+    timeout: 15
+    description: Read latest path/status/code
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+          - dynamodb:Scan
+        Resource:
+          - arn:aws:dynamodb:${aws:region}:*:table/${self:provider.environment.TABLE_NAME}
+      - Effect: Allow
+        Action:
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*
+    events:
+      - httpApi:
+          method: get
+          path: /latest/status
+      - httpApi:
+          method: get
+          path: /latest/path
+      - httpApi:
+          method: get
+          path: /latest/code
+
+resources:
+  Resources:
+    ArtifactsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.BUCKET_NAME}
+        VersioningConfiguration:
+          Status: Enabled
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+    JobsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.TABLE_NAME}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: jobId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: jobId
+            KeyType: HASH

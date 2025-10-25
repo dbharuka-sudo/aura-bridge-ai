@@ -1,0 +1,20 @@
+{
+  "name": "cloud",
+  "version": "1.0.0",
+  "description": "## Prereqs - Node.js 18+ - AWS CLI v2 - Serverless Framework v3 (`npm i -g serverless`)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.917.0",
+    "@aws-sdk/client-s3": "^3.917.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.917.0"
+  },
+  "devDependencies": {
+    "serverless-iam-roles-per-function": "^3.2.0"
+  }
+}
