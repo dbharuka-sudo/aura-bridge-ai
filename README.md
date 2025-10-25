@@ -42,7 +42,7 @@ graph TD
     G[React Frontend] -->|API Calls| H[Lambda: API Function]
     H -->|Fetch Data| D
     H -->|Query Jobs| E
-    H -->|3D Visualization| I[Three.js Renderer]
+    H -->|3D Visualization| I[Simulation Renderer]
 ```
 
 ### Detailed Data Flow:
