@@ -1,0 +1,18 @@
+# Node
+**/node_modules/
+**/.serverless/
+**/.parcel-cache/
+**/.cache/
+**/dist/
+**/build/
+npm-debug.log*
+
+# Env & local
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
