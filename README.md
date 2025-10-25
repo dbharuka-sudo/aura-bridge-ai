@@ -59,7 +59,7 @@ graph TD
    - Generates basic robot code (KAREL/KRL)
 
 3. **AI Enhancement**
-   - Optional Bedrock integration for code refinement
+   - Bedrock integration for code refinement
    - AI analyzes path complexity and optimizes motion
    - Generates more sophisticated robot programs
 
@@ -197,14 +197,6 @@ aura-bridge-ai/
 - S3 bucket policies for secure data access
 - IoT device authentication and authorization
 - API Gateway request validation
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
 
 ## 📄 License
 
