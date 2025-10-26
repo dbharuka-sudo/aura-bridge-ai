@@ -200,8 +200,32 @@ aura-bridge-ai/
 │   │   ├── ingest.js          # Data processing Lambda
 │   │   └── api.js             # API endpoints Lambda
 │   └── serverless.yml         # Infrastructure as code
+├── docs/
+│   └── videos.md              # Video demonstrations and tutorials
 └── README.md                  # This file
 ```
+
+## 📚 Documentation & Media
+
+### **Video Demonstrations**
+- **Main Demo**: [Aura Bridge AI System Demo](https://www.youtube.com/shorts/4f4ieUTvkCk) - Complete system walkthrough
+- **Technical Overview**: Coming soon - Architecture deep dive
+- **Setup Tutorial**: Coming soon - Step-by-step installation guide
+
+## 🎥 Demo Video
+
+Watch the Aura Bridge AI system in action:
+
+[![Aura Bridge AI Demo](https://img.youtube.com/vi/4f4ieUTvkCk/maxresdefault.jpg)](https://www.youtube.com/shorts/4f4ieUTvkCk)
+
+**Click the image above to view the demo on YouTube**
+
+### **What You'll See:**
+- Real-time hand gesture capture with ZED 2i camera
+- Live trajectory processing and visualization
+- 3D path rendering with Three.js
+- Robot code generation (FANUC KAREL/KUKA KRL)
+- Interactive web interface
 
 ## 🚀 Quick Start
 
