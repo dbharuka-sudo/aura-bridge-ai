@@ -30,8 +30,13 @@ export default function App() {
   const valid = status?.valid
   const message = status?.message || 'Loading status...'
 
-  const [tab, setTab] = useState('karel')
-  const codeText = useMemo(() => (tab === 'krl' ? codes?.krl : codes?.karel) || 'Awaiting code...', [tab, codes])
+  const [tab, setTab] = useState('rapid')
+  const codeText = useMemo(() => {
+    if (tab === 'karel') return codes?.karel || 'Awaiting code...'
+    if (tab === 'krl') return codes?.krl || 'Awaiting code...'
+    if (tab === 'rapid') return codes?.rapid || 'Awaiting code...'
+    return 'Awaiting code...'
+  }, [tab, codes])
   const isLoading = !codes || !path || !status
 
   // Download function for robot code
@@ -41,9 +46,9 @@ export default function App() {
       return
     }
 
-    const extension = tab === 'karel' ? 'ls' : 'src'
+    const extension = tab === 'karel' ? 'ls' : tab === 'krl' ? 'src' : 'mod'
     const filename = `aura_bridge_path.${extension}`
-    const mimeType = tab === 'karel' ? 'text/plain' : 'text/plain'
+    const mimeType = 'text/plain'
     
     const blob = new Blob([codeText], { type: mimeType })
     const url = URL.createObjectURL(blob)
@@ -57,27 +62,21 @@ export default function App() {
     URL.revokeObjectURL(url)
   }
 
+
   return (
     <div className="app">
       <div className="header">
-        <div className="header-content">
-          <div className="title-section">
-            <h1 className="title">Aura Bridge AI</h1>
-            <p className="subtitle">The AI-Powered Universal Robot Translator</p>
-          </div>
-          <div className="header-controls">
-            <div className="status-section">
-              <span className="status">
-                <span className="status-label">🔍 Validation Status</span>
-                <span className={`badge ${valid ? 'valid' : 'pending'}`}>
-                  {valid ? '✅ Valid' : '⏳ Pending'}
-                </span>
-              </span>
-            </div>
-            <button className="btn refresh-btn" onClick={() => window.location.reload()}>
-              🔄 Refresh
-            </button>
-          </div>
+        <div className="title">Aura Bridge AI — The AI-Powered Universal Robot Translator</div>
+        <div className="right">
+          <span className="status">
+            <span className="small">🔍 Validation Status</span>
+            <span className={`badge ${valid ? '' : 'pending'}`}>
+              {valid ? '✅ Valid' : '⏳ Pending'}
+            </span>
+          </span>
+          <button className="btn" onClick={() => window.location.reload()}>
+            🔄 Refresh
+          </button>
         </div>
       </div>
 
@@ -98,6 +97,9 @@ export default function App() {
           <div className="panel">
             <h3>🤖 Robot Code Generator</h3>
             <div className="tabs">
+              <button className={`tab ${tab === 'rapid' ? 'active' : ''}`} onClick={() => setTab('rapid')}>
+                🤖 ABB RAPID
+              </button>
               <button className={`tab ${tab === 'karel' ? 'active' : ''}`} onClick={() => setTab('karel')}>
                 🏭 FANUC KAREL
               </button>
@@ -108,13 +110,13 @@ export default function App() {
             <div className="code-container">
               <div className="code-header">
                 <span className="code-label">
-                  {tab === 'karel' ? '🏭 FANUC KAREL Code' : '⚙️ KUKA KRL Code'}
+                  {tab === 'rapid' ? '🤖 ABB RAPID Code' : tab === 'karel' ? '🏭 FANUC KAREL Code' : '⚙️ KUKA KRL Code'}
                 </span>
                 <button 
                   className="download-btn" 
                   onClick={downloadCode}
                   disabled={!codeText || codeText === 'Awaiting code...'}
-                  title={`Download ${tab === 'karel' ? 'KAREL' : 'KRL'} code`}
+                  title={`Download ${tab === 'rapid' ? 'RAPID' : tab === 'karel' ? 'KAREL' : 'KRL'} code`}
                 >
                   📥 Download Code
                 </button>
