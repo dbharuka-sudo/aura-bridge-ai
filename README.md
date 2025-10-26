@@ -82,11 +82,11 @@ graph TB
     V -->|Show| Z
     
     %% Styling
-    classDef edgeDevice fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef awsService fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef storage fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef frontend fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
-    classDef external fill:#fff8e1,stroke:#f57f17,stroke-width:2px
+    classDef edgeDevice fill:#2e7d32,stroke:#1b5e20,stroke-width:3px,color:#ffffff
+    classDef awsService fill:#1976d2,stroke:#0d47a1,stroke-width:3px,color:#ffffff
+    classDef storage fill:#7b1fa2,stroke:#4a148c,stroke-width:3px,color:#ffffff
+    classDef frontend fill:#d32f2f,stroke:#b71c1c,stroke-width:3px,color:#ffffff
+    classDef external fill:#f57c00,stroke:#e65100,stroke-width:3px,color:#ffffff
     
     class A,B,C,D edgeDevice
     class E,F,G,H,I,J,K,L,R,S,T,U awsService
@@ -151,10 +151,10 @@ graph LR
     D3 --> B1
     D4 --> D5
     
-    classDef edge fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef cloud fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef frontend fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef dev fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    classDef edge fill:#2e7d32,stroke:#1b5e20,stroke-width:3px,color:#ffffff
+    classDef cloud fill:#1976d2,stroke:#0d47a1,stroke-width:3px,color:#ffffff
+    classDef frontend fill:#d32f2f,stroke:#b71c1c,stroke-width:3px,color:#ffffff
+    classDef dev fill:#7b1fa2,stroke:#4a148c,stroke-width:3px,color:#ffffff
     
     class A1,A2,A3,A4 edge
     class B1,B2,B3,B4,B5,B6 cloud
