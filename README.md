@@ -36,9 +36,9 @@ graph TB
     
     subgraph "API Gateway"
         R[HTTP API v2]
-        S[/latest/status]
-        T[/latest/path]
-        U[/latest/code]
+        S[latest-status endpoint]
+        T[latest-path endpoint]
+        U[latest-code endpoint]
     end
     
     subgraph "Frontend Application"
@@ -94,75 +94,6 @@ graph TB
     class V,W,X,Y,Z frontend
     class AA,BB external
 ```
-
-## 🔄 Data Flow
-
-```mermaid
-sequenceDiagram
-    participant ZED as ZED 2i Camera
-    participant Jetson as NVIDIA Jetson
-    participant IoT as AWS IoT Core
-    participant Ingest as Ingest Lambda
-    participant S3 as S3 Storage
-    participant DB as DynamoDB
-    participant Bedrock as Amazon Bedrock
-    participant API as API Lambda
-    participant Gateway as API Gateway
-    participant React as React Frontend
-    participant Three as Three.js Renderer
-    
-    ZED->>Jetson: Capture hand gestures
-    Jetson->>Jetson: Process with AI model
-    Jetson->>IoT: Publish JSON trajectory
-    IoT->>Ingest: Trigger Lambda function
-    
-    Ingest->>Ingest: Validate & normalize data
-    Ingest->>Ingest: Generate base robot code
-    Ingest->>S3: Store path artifacts
-    Ingest->>DB: Update job metadata
-    
-    alt Bedrock Enhancement Enabled
-        Ingest->>Bedrock: Send code for refinement
-        Bedrock->>Ingest: Return enhanced code
-        Ingest->>S3: Store refined code
-    end
-    
-    React->>Gateway: Poll /latest/status
-    Gateway->>API: Forward request
-    API->>DB: Query job status
-    API->>Gateway: Return status
-    Gateway->>React: Status response
-    
-    React->>Gateway: Fetch /latest/path
-    Gateway->>API: Forward request
-    API->>S3: Retrieve path data
-    API->>Gateway: Return path JSON
-    Gateway->>React: Path data
-    
-    React->>Gateway: Fetch /latest/code
-    Gateway->>API: Forward request
-    API->>S3: Retrieve robot code
-    API->>Gateway: Return code
-    Gateway->>React: Robot code
-    
-    React->>Three: Render 3D visualization
-    Three->>Three: Display trajectory path
-    Three->>Three: Show waypoints & events
-    React->>React: Display robot code
-```
-
-### **System Flow Overview:**
-
-1. **🎥 Capture**: ZED 2i stereo camera captures hand gestures in real-time
-2. **🧠 Process**: NVIDIA Jetson processes gestures with custom AI model
-3. **📤 Publish**: JSON trajectory data published to AWS IoT Core topic
-4. **⚡ Ingest**: Lambda function validates, normalizes (mm→m), and processes data
-5. **🤖 Generate**: Base robot code (FANUC KAREL, KUKA KRL) automatically generated
-6. **✨ Enhance**: Optional Amazon Bedrock AI refinement for improved code quality
-7. **💾 Store**: Processed data stored in S3, metadata in DynamoDB
-8. **🌐 Serve**: API Lambda provides RESTful endpoints for status, path, and code
-9. **🎨 Visualize**: React frontend renders interactive 3D path with Three.js
-10. **📱 Display**: Real-time visualization with live robot code updates
 
 ## 🛠️ Technology Stack
 
