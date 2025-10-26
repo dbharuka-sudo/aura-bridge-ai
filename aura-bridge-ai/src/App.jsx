@@ -32,6 +32,30 @@ export default function App() {
 
   const [tab, setTab] = useState('karel')
   const codeText = useMemo(() => (tab === 'krl' ? codes?.krl : codes?.karel) || 'Awaiting code...', [tab, codes])
+  const isLoading = !codes || !path || !status
+
+  // Download function for robot code
+  const downloadCode = () => {
+    if (!codeText || codeText === 'Awaiting code...') {
+      alert('No code available to download')
+      return
+    }
+
+    const extension = tab === 'karel' ? 'ls' : 'src'
+    const filename = `aura_bridge_path.${extension}`
+    const mimeType = tab === 'karel' ? 'text/plain' : 'text/plain'
+    
+    const blob = new Blob([codeText], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <div className="app">
@@ -39,34 +63,61 @@ export default function App() {
         <div className="title">Aura Bridge AI — The AI-Powered Universal Robot Translator</div>
         <div className="right">
           <span className="status">
-            <span className="small">Validation</span>
-            <span className="badge">{valid ? 'Valid' : 'Pending'}</span>
+            <span className="small">🔍 Validation Status</span>
+            <span className={`badge ${valid ? '' : 'pending'}`}>
+              {valid ? '✅ Valid' : '⏳ Pending'}
+            </span>
           </span>
-          <button className="btn" onClick={() => window.location.reload()}>Refresh</button>
+          <button className="btn" onClick={() => window.location.reload()}>
+            🔄 Refresh
+          </button>
         </div>
       </div>
 
-      <div className="panel viewer">
-        <h3>3D Path</h3>
-        <PathViewer path={path?.path} />
-      </div>
-
-      <div className="split">
-        <div className="panel">
-          <h3>Status</h3>
-          <div className="small">{message}</div>
+      <div className="main-content">
+        <div className="panel viewer">
+          <h3>🎯 3D Path Visualization</h3>
+          <PathViewer path={path?.path} />
         </div>
 
-        <div className="panel">
-          <h3>Robot Code</h3>
-          <div className="tabs">
-            <button className={`tab ${tab === 'karel' ? 'active' : ''}`} onClick={() => setTab('karel')}>FANUC KAREL</button>
-            <button className={`tab ${tab === 'krl' ? 'active' : ''}`} onClick={() => setTab('krl')}>KUKA KRL</button>
+        <div className="split">
+          <div className="panel">
+            <h3>📊 System Status</h3>
+            <div className={`small ${isLoading ? 'loading' : ''}`}>
+              {isLoading ? '🔄 Loading system status...' : message}
+            </div>
           </div>
-          <pre className="code">{codeText}</pre>
-        </div>
 
-        {/* NICE DCV iframe removed per request */}
+          <div className="panel">
+            <h3>🤖 Robot Code Generator</h3>
+            <div className="tabs">
+              <button className={`tab ${tab === 'karel' ? 'active' : ''}`} onClick={() => setTab('karel')}>
+                🏭 FANUC KAREL
+              </button>
+              <button className={`tab ${tab === 'krl' ? 'active' : ''}`} onClick={() => setTab('krl')}>
+                ⚙️ KUKA KRL
+              </button>
+            </div>
+            <div className="code-container">
+              <div className="code-header">
+                <span className="code-label">
+                  {tab === 'karel' ? '🏭 FANUC KAREL Code' : '⚙️ KUKA KRL Code'}
+                </span>
+                <button 
+                  className="download-btn" 
+                  onClick={downloadCode}
+                  disabled={!codeText || codeText === 'Awaiting code...'}
+                  title={`Download ${tab === 'karel' ? 'KAREL' : 'KRL'} code`}
+                >
+                  📥 Download Code
+                </button>
+              </div>
+              <pre className={`code ${isLoading ? 'loading' : ''}`}>
+                {isLoading ? '🔄 Generating robot code...' : codeText}
+              </pre>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

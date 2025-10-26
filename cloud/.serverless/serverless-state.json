@@ -203,7 +203,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/aura-bridge-ai-cloud/prod/1761426872260-2025-10-25T21:14:32.260Z/aura-bridge-ai-cloud.zip"
+                "S3Key": "serverless/aura-bridge-ai-cloud/prod/1761429958194-2025-10-25T22:05:58.194Z/aura-bridge-ai-cloud.zip"
               },
               "Handler": "functions/ingest.handler",
               "Runtime": "nodejs18.x",
@@ -240,7 +240,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/aura-bridge-ai-cloud/prod/1761426872260-2025-10-25T21:14:32.260Z/aura-bridge-ai-cloud.zip"
+                "S3Key": "serverless/aura-bridge-ai-cloud/prod/1761429958194-2025-10-25T22:05:58.194Z/aura-bridge-ai-cloud.zip"
               },
               "Handler": "functions/api.handler",
               "Runtime": "nodejs18.x",
@@ -270,25 +270,25 @@
               "ApiLogGroup"
             ]
           },
-          "IngestLambdaVersioncCmokqNnw9myyTM29evsny5qBV4Wgfyx7nTMFM9koWc": {
+          "IngestLambdaVersionsQMnEdgwAQTiCSjVX7lmabI4zSyDzPbmOvXcFCg17M": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "IngestLambdaFunction"
               },
-              "CodeSha256": "gQFBSvPdW9xu6WYYaf79K9X7QlzeAYB+85Q4EncC/Fc=",
+              "CodeSha256": "QLDz5HyE3RiSy+k+XbwNwSee0R3fhDPQfFfKvE5qBj0=",
               "Description": "Ingest from IoT, validate, call Bedrock, store to S3+DDB"
             }
           },
-          "ApiLambdaVersiond13X1pOY92rVtEjyz66OQCXXoePxIVu20pT7U0": {
+          "ApiLambdaVersionlK2KVKAiIIvCMWmOfepWnGF883pTVJvgKONJiTOes": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "ApiLambdaFunction"
               },
-              "CodeSha256": "gQFBSvPdW9xu6WYYaf79K9X7QlzeAYB+85Q4EncC/Fc=",
+              "CodeSha256": "QLDz5HyE3RiSy+k+XbwNwSee0R3fhDPQfFfKvE5qBj0=",
               "Description": "Read latest path/status/code"
             }
           },
@@ -721,7 +721,7 @@
           "IngestLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "IngestLambdaVersioncCmokqNnw9myyTM29evsny5qBV4Wgfyx7nTMFM9koWc"
+              "Ref": "IngestLambdaVersionsQMnEdgwAQTiCSjVX7lmabI4zSyDzPbmOvXcFCg17M"
             },
             "Export": {
               "Name": "sls-aura-bridge-ai-cloud-prod-IngestLambdaFunctionQualifiedArn"
@@ -730,7 +730,7 @@
           "ApiLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "ApiLambdaVersiond13X1pOY92rVtEjyz66OQCXXoePxIVu20pT7U0"
+              "Ref": "ApiLambdaVersionlK2KVKAiIIvCMWmOfepWnGF883pTVJvgKONJiTOes"
             },
             "Export": {
               "Name": "sls-aura-bridge-ai-cloud-prod-ApiLambdaFunctionQualifiedArn"
@@ -889,7 +889,7 @@
         "memory": 1024,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "IngestLambdaVersioncCmokqNnw9myyTM29evsny5qBV4Wgfyx7nTMFM9koWc"
+        "versionLogicalId": "IngestLambdaVersionsQMnEdgwAQTiCSjVX7lmabI4zSyDzPbmOvXcFCg17M"
       },
       "api": {
         "handler": "functions/api.handler",
@@ -934,7 +934,7 @@
         "memory": 1024,
         "runtime": "nodejs18.x",
         "vpc": {},
-        "versionLogicalId": "ApiLambdaVersiond13X1pOY92rVtEjyz66OQCXXoePxIVu20pT7U0"
+        "versionLogicalId": "ApiLambdaVersionlK2KVKAiIIvCMWmOfepWnGF883pTVJvgKONJiTOes"
       }
     },
     "resources": {
@@ -999,7 +999,7 @@
     "artifact": "/Users/rishabhagrawal/Desktop/Hack 2025/cloud/.serverless/aura-bridge-ai-cloud.zip"
   },
   "package": {
-    "artifactDirectoryName": "serverless/aura-bridge-ai-cloud/prod/1761426872260-2025-10-25T21:14:32.260Z",
+    "artifactDirectoryName": "serverless/aura-bridge-ai-cloud/prod/1761429958194-2025-10-25T22:05:58.194Z",
     "artifact": "aura-bridge-ai-cloud.zip"
   }
 }

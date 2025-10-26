@@ -57,20 +57,53 @@ module.exports.handler = async (event) => {
 		try {
 			const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime')
 			const br = new BedrockRuntimeClient({})
-			const prompt = `You are a robotics motion expert. Given a path as JSON points in meters and grasp/release events, produce concise and correct robot programs.\n\nJSON path:\n${JSON.stringify({ points: canonicalPath, grasp_events: payload?.grasp_events || [] }).slice(0, 15000)}\n\nReturn two sections: KAREL and KRL. Use linear moves between waypoints (FINE).`
+			const motionDefaults = {
+				speed_mm_s: 200,
+				termination: 'FINE',
+				kuka_approx: 'C_DIS'
+			}
+			const pathJson = JSON.stringify({ points: canonicalPath, grasp_events: payload?.grasp_events || [], fixtures: payload?.fixtures || null }).slice(0, 15000)
+			const system = [
+				'You are an industrial robotics expert (FANUC and KUKA).',
+				'Return production-grade motion programs that will compile on real controllers.',
+				'Respect the required output format exactly; no explanations.'
+			].join(' ')
+			const prompt = [
+				'INPUT:',
+				`- Waypoints (meters) and events JSON: ${pathJson}`,
+				`- Defaults: speed=${motionDefaults.speed_mm_s} mm/sec, termination=${motionDefaults.termination}, kuka_approx=${motionDefaults.kuka_approx}`,
+				'',
+				'REQUIREMENTS:',
+				'- FANUC: output Fanuc TP listing (.LS style), not KAREL source; include a PROGRAM header and linear moves in mm/sec, termination FINE; one motion per waypoint like: "L P[1] ${speed}mm/sec FINE". Include POINT data section with XYZ in meters converted to mm.',
+				'- KUKA: output KRL program (.SRC) with DEF/END, LIN motions for each waypoint, use $VEL.CP to reflect speed (mm/sec), and termination using C_DIS when not final; coordinates in mm.',
+				'- If grasp/release events exist, insert clear inline comments on the corresponding motion lines (e.g., ; GRASP / ; RELEASE).',
+				'- Use TOOL and BASE defaults as commented stubs if not specified.',
+				'',
+				'FORMAT (must match exactly):',
+				'```FANUC_LS',
+				'<FANUC_TP_LISTING_HERE>',
+				'```',
+				'```KRL',
+				'<KUKA_KRL_SRC_HERE>',
+				'```'
+			].join('\n')
 			const model = process.env.BEDROCK_MODEL || 'anthropic.claude-3-haiku-20240307-v1:0'
 			const body = JSON.stringify({
 				anthropic_version: 'bedrock-2023-05-31',
 				max_tokens: 2000,
 				temperature: 0,
-				messages: [{ role: 'user', content: [{ type: 'text', text: prompt }] }]
+				messages: [
+					{ role: 'user', content: [{ type: 'text', text: prompt }] }
+				],
+				system
 			})
 			const resp = await br.send(new InvokeModelCommand({ modelId: model, contentType: 'application/json', accept: 'application/json', body }))
 			const txt = JSON.parse(new TextDecoder('utf-8').decode(resp.body)).content?.[0]?.text || ''
-			const karelMatch = /KAREL[\s\S]*?(?=KRL|$)/i.exec(txt)
-			const krlMatch = /KRL[\s\S]*$/i.exec(txt)
-			refinedKarel = (karelMatch ? karelMatch[0].replace(/^[\s\S]*?\n/, '') : null) || null
-			refinedKrl = (krlMatch ? krlMatch[0].replace(/^KRL\s*/i, '') : null) || null
+			// Extract fenced code blocks
+			const fanucBlock = /```FANUC_LS\n([\s\S]*?)```/i.exec(txt)
+			const krlBlock = /```KRL\n([\s\S]*?)```/i.exec(txt)
+			refinedKarel = fanucBlock ? fanucBlock[1].trim() : null
+			refinedKrl = krlBlock ? krlBlock[1].trim() : null
 		} catch (e) {
 			console.warn('Bedrock refinement failed:', e?.message || e)
 		}
