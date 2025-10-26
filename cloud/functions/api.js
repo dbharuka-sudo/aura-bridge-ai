@@ -45,19 +45,23 @@ module.exports.handler = async (event) => {
 
 		if (route.endsWith('/latest/code')) {
 			try {
-				if (!latest) return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...' }) }
+				if (!latest) return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...', rapid: 'Awaiting code...' }) }
 				const karelKey = latest.karelKey?.S
 				const krlKey = latest.krlKey?.S
+				const rapidKey = latest.rapidKey?.S
 				const refinedKarelKey = latest.refinedKarelKey?.S
 				const refinedKrlKey = latest.refinedKrlKey?.S
-				if (!karelKey || !krlKey) return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...' }) }
+				const refinedRapidKey = latest.refinedRapidKey?.S
+				if (!karelKey || !krlKey || !rapidKey) return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...', rapid: 'Awaiting code...' }) }
 				const baseKarelObj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: karelKey }))
 				const baseKrlObj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: krlKey }))
-				const [baseKarel, baseKrl] = await Promise.all([
+				const baseRapidObj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: rapidKey }))
+				const [baseKarel, baseKrl, baseRapid] = await Promise.all([
 					readableStreamToString(baseKarelObj.Body),
-					readableStreamToString(baseKrlObj.Body)
+					readableStreamToString(baseKrlObj.Body),
+					readableStreamToString(baseRapidObj.Body)
 				])
-				let refinedKarel = null, refinedKrl = null
+				let refinedKarel = null, refinedKrl = null, refinedRapid = null
 				try {
 					if (refinedKarelKey) {
 						const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: refinedKarelKey }))
@@ -67,10 +71,14 @@ module.exports.handler = async (event) => {
 						const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: refinedKrlKey }))
 						refinedKrl = await readableStreamToString(obj.Body)
 					}
+					if (refinedRapidKey) {
+						const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: refinedRapidKey }))
+						refinedRapid = await readableStreamToString(obj.Body)
+					}
 				} catch { }
-				return { statusCode: 200, headers, body: JSON.stringify({ karel: refinedKarel || baseKarel, krl: refinedKrl || baseKrl }) }
+				return { statusCode: 200, headers, body: JSON.stringify({ karel: refinedKarel || baseKarel, krl: refinedKrl || baseKrl, rapid: refinedRapid || baseRapid }) }
 			} catch (err) {
-				return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...' }) }
+				return { statusCode: 200, headers, body: JSON.stringify({ karel: 'Awaiting code...', krl: 'Awaiting code...', rapid: 'Awaiting code...' }) }
 			}
 		}
 
