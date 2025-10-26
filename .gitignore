@@ -16,3 +16,32 @@ npm-debug.log*
 # Editor
 .vscode/
 .idea/
+
+# Security & Sensitive Files
+*.pem
+*.pub
+*.key
+*.p12
+*.pfx
+trust.json
+user-data.*
+*.zip
+*.tar.gz
+*.tar
+*.rar
+*.7z
+
+# AWS & Cloud
+.aws/
+aws-credentials.json
+*.credentials
+*.secrets
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*~
