@@ -1,17 +1,28 @@
 import React, { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
 export default function PathViewer({ path }) {
   const mountRef = useRef(null)
-  const { scene, camera, renderer } = useMemo(() => {
+  const gridRef = useRef(null)
+  const lastSigRef = useRef(null)
+  const { scene, camera, renderer, controls } = useMemo(() => {
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0x0b1020)
-    const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100)
+    const camera = new THREE.PerspectiveCamera(60, 1, 0.01, 1000)
     camera.position.set(1.2, 0.9, 1.2)
     camera.lookAt(0, 0, 0)
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    return { scene, camera, renderer }
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.08
+    controls.minDistance = 0.2
+    controls.maxDistance = 10
+    controls.enablePan = true
+    controls.zoomSpeed = 0.7
+    controls.rotateSpeed = 0.8
+    return { scene, camera, renderer, controls }
   }, [])
 
   useEffect(() => {
@@ -20,8 +31,7 @@ export default function PathViewer({ path }) {
     renderer.setSize(mount.clientWidth, mount.clientHeight)
     mount.appendChild(renderer.domElement)
 
-    const grid = new THREE.GridHelper(2, 20, 0x2b3d7a, 0x1f2b55)
-    scene.add(grid)
+    // grid will be created dynamically once a path is available
 
     const light = new THREE.DirectionalLight(0xffffff, 1.0)
     light.position.set(2, 3, 2)
@@ -45,6 +55,7 @@ export default function PathViewer({ path }) {
 
     const animate = () => {
       rafId = requestAnimationFrame(animate)
+      controls.update()
       renderer.render(scene, camera)
     }
     animate()
@@ -55,7 +66,7 @@ export default function PathViewer({ path }) {
       mount.removeChild(renderer.domElement)
       // dispose will be handled implicitly here
     }
-  }, [renderer, scene, camera])
+  }, [renderer, scene, camera, controls])
 
   useEffect(() => {
     // Clear previous path objects
@@ -123,6 +134,44 @@ export default function PathViewer({ path }) {
         s.userData.isPath = true
         scene.add(s)
       }
+    }
+
+    // Compute signature to avoid re-framing on every polling tick
+    const first = path.points[0]
+    const last = path.points[path.points.length - 1]
+    const sig = `${path.points.length}:${first?.x?.toFixed?.(3)},${first?.y?.toFixed?.(3)},${first?.z?.toFixed?.(3)}:${last?.x?.toFixed?.(3)},${last?.y?.toFixed?.(3)},${last?.z?.toFixed?.(3)}`
+
+    if (sig !== lastSigRef.current) {
+      // Auto-fit camera and grid to the path bounds only when data actually changes
+      const box = new THREE.Box3().setFromPoints(points)
+      const center = box.getCenter(new THREE.Vector3())
+      const size = box.getSize(new THREE.Vector3())
+      const sphere = box.getBoundingSphere(new THREE.Sphere())
+      const radius = Math.max(sphere.radius, 0.25)
+
+      const fov = camera.fov * (Math.PI / 180)
+      const fitDist = radius / Math.sin(Math.min(Math.PI / 2, fov / 2))
+      const dir = new THREE.Vector3(1, 0.6, 1).normalize()
+      const pos = center.clone().add(dir.multiplyScalar(fitDist * 1.2))
+
+      controls.target.copy(center)
+      camera.position.copy(pos)
+      camera.near = Math.max(0.001, radius * 0.01)
+      camera.far = Math.max(1000, radius * 20)
+      camera.updateProjectionMatrix()
+      controls.minDistance = radius * 0.1
+      controls.maxDistance = radius * 20
+      controls.update()
+
+      // Resize and reposition grid
+      const gridSize = Math.max(2, Math.ceil(Math.max(size.x, size.z, 1) * 6))
+      if (gridRef.current) scene.remove(gridRef.current)
+      const newGrid = new THREE.GridHelper(gridSize, gridSize * 5, 0x2b3d7a, 0x1f2b55)
+      newGrid.position.set(center.x, center.y - size.y / 2 - 0.001, center.z)
+      scene.add(newGrid)
+      gridRef.current = newGrid
+
+      lastSigRef.current = sig
     }
   }, [path, scene])
 
